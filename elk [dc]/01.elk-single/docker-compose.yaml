@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  elasticsearch:
+    image: elasticsearch:7.2.0
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: 123456
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+  logstash:
+    image: logstash:7.2.0
+    ports:
+      - 5000:5000
+      - 9600:9600
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ./data/logs/nginx:/var/log/nginx
+  kibana:
+    image: kibana:7.2.0
+    ports:
+      - 5601:5601
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+  nginx:
+    image: generals/centos7
+    ports:
+      - 9001:8080
+    volumes:
+      - ./nginx/config/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
+      - ./data/logs/nginx:/var/log/nginx
+    command: ["tail", "-f", "/etc/profile"]

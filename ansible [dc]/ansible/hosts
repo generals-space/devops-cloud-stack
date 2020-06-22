@@ -1,0 +1,11 @@
+[all]
+slave-[01:05]
+
+[web]
+slave-01
+slave-02
+slave-03
+
+[db]
+slave-04
+slave-05

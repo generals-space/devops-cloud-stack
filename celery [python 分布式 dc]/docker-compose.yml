@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  redis-serv:
+    image: redis:4-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data/redis:/data
+    command: ["redis-server", "--requirepass", "celery_redis_pwd"]
+  flower: ## web ui
+    image: generals/celery-producer
+    hostname: producer
+    ports:
+      - 8080:8080
+    ## 在command中使用环境变量需要用字符串形式, 不能用数组形式
+    command: celery flower --port=8080 --broker=redis://:celery_redis_pwd@redis-serv:6379/0
+  producer-node:
+    image: generals/celery-producer
+    hostname: producer
+    volumes:
+      - ./project:/project
+    command: ["python", "producer.py"]
+  worker-node:
+    image: generals/celery-producer
+    hostname: worker
+    volumes:
+      - ./project:/project
+    ## command: ["python", "worker.py"]
+    command: ["celery", "-A", "tasks.task", "worker"]

@@ -1,0 +1,67 @@
+version: '3'
+
+services:
+  elasticsearch:
+    image: elasticsearch:7.2.0
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: 123456
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+  zookeeper:
+    image: zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka # docker hub上star最多, pull次数最多的非官方镜像(因为没有官方镜像)
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - ./data/logs/kafka:/kafka
+  logstash:
+    image: logstash:7.2.0
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+  kibana:
+    image: kibana:7.2.0
+    ports:
+      - 5601:5601
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+  nginx-01:
+    image: generals/centos7
+    ports:
+      - 9001:8080
+    volumes:
+      - ./nginx/config/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./data/logs/nginx01:/var/log/nginx
+    command: ["tail", "-f", "/etc/profile"]
+  filebeat-01:
+    hostname: node-01
+    image: elastic/filebeat:7.2.0
+    volumes:
+      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./data/logs/nginx01:/var/log/nginx
+  nginx-02:
+    image: generals/centos7
+    ports:
+      - 9002:8080
+    volumes:
+      - ./nginx/config/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./data/logs/nginx02:/var/log/nginx
+    command: ["tail", "-f", "/etc/profile"]
+  filebeat-02:
+    hostname: node-02
+    image: elastic/filebeat:7.2.0
+    volumes:
+      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./data/logs/nginx02:/var/log/nginx

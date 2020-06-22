@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  master:
+    image: generals/ansible-node
+    volumes:
+      - ./ansible/hosts:/etc/ansible/hosts
+  slave-01:
+    image: generals/ansible-node
+  slave-02:
+    image: generals/ansible-node
+  slave-03:
+    image: generals/ansible-node
+  slave-04:
+    image: generals/ansible-node
+  slave-05:
+    image: generals/ansible-node

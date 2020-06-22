@@ -1,0 +1,113 @@
+version: '3'
+
+services:
+  elasticsearch:
+    image: elasticsearch:7.2.0
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: 123456
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+  zookeeper:
+    image: zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka # docker hub上star最多, pull次数最多的非官方镜像(因为没有官方镜像)
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - ./data/logs/kafka:/kafka
+  logstash:
+    image: logstash:7.2.0
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+  kibana:
+    image: kibana:7.2.0
+    ports:
+      - 5601:5601
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+  nginx-01:
+    image: nginx
+    hostname: nginx-node-01
+    labels:
+      ## logs.nginx中的nginx为发送到kafka的topics的名称, 也是发送到es的index的名称, 所以要和这些组件中定义的topic/index匹配
+      aliyun.logs.nginx: /var/log/nginx/access_json.log ## 这里是日志存放在宿主机的目录, 必须是绝对路径.
+      aliyun.logs.nginx.tags: node=node-01
+    ports:
+      - 8081:80
+      - 9001:8080
+    volumes:
+      - ./nginx/config/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./data/logs/nginx01:/var/log/nginx
+  log-pilot-01: ## 每一对log-pilot + nginx都模拟一台宿主机, 多项目的情况.
+    image: registry.cn-hangzhou.aliyuncs.com/acs/log-pilot:0.9.5-filebeat
+    hostname: pilot-node-01
+    cap_add:
+      - SYS_ADMIN
+    environment:
+      LOGGING_OUTPUT: kafka
+      KAFKA_BROKERS: kafka:9092
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime
+      - ./data/logs/nginx01:/var/log/nginx
+      - /:/host:ro
+  nginx-02:
+    image: nginx
+    hostname: nginx-node-02
+    labels:
+      ## logs.nginx中的nginx为发送到kafka的topics的名称, 也是发送到es的index的名称, 所以要和这些组件中定义的topic/index匹配
+      aliyun.logs.nginx: /var/log/nginx/access_json.log ## 这里是日志存放在宿主机的目录, 必须是绝对路径.
+      aliyun.logs.nginx.tags: node=node-02
+    ports:
+      - 8082:80
+      - 9002:8080
+    volumes:
+      - ./nginx/config/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./data/logs/nginx02:/var/log/nginx
+  log-pilot-02: ## 每一对log-pilot + nginx都模拟一台宿主机, 多项目的情况.
+    image: registry.cn-hangzhou.aliyuncs.com/acs/log-pilot:0.9.5-filebeat
+    hostname: pilot-node-02
+    cap_add:
+      - SYS_ADMIN
+    environment:
+      LOGGING_OUTPUT: kafka
+      KAFKA_BROKERS: kafka:9092
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime
+      - ./data/logs/nginx02:/var/log/nginx
+      - /:/host:ro
+  ############################################################################
+  nginx-03: ## 这一部分接收stdout数据, 不挂载共享目录也可以
+    image: nginx
+    hostname: nginx-node-03
+    labels:
+      ## logs.nginx中的nginx为发送到kafka的topics的名称, 也是发送到es的index的名称, 所以要和这些组件中定义的topic/index匹配
+      aliyun.logs.nginx: stdout 
+      aliyun.logs.nginx.tags: node=node-03
+    ports:
+      - 8083:80
+  log-pilot-03: ## 每一对log-pilot + nginx都模拟一台宿主机, 多项目的情况.
+    image: registry.cn-hangzhou.aliyuncs.com/acs/log-pilot:0.9.5-filebeat
+    hostname: pilot-node-03
+    cap_add:
+      - SYS_ADMIN
+    environment:
+      LOGGING_OUTPUT: kafka
+      KAFKA_BROKERS: kafka:9092
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime
+      - /:/host:ro

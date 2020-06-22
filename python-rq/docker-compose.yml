@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  redis-serv:
+    image: redis:4-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data/redis:/data
+  dashboard:
+    image: generals/rq-producer
+    ports:
+      - 8080:8080
+    command: rq-dashboard --bind 0.0.0.0 --port 8080 --redis-host=redis-serv --redis-port=6379
+  producer-node:
+    image: generals/rq-producer
+    hostname: producer
+    volumes:
+      - ./project:/project
+    command: ["python", "main.py"]
+  worker-node:
+    image: generals/rq-producer
+    hostname: worker
+    volumes:
+      - ./project:/project
+    command: rq worker --url redis://redis-serv:6379/0

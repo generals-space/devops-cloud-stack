@@ -1,0 +1,24 @@
+## docker build --no-cache=true -f dockerfile -t generals/ansible-node .
+FROM generals/python3
+
+################################################################
+## docker镜像通用设置
+LABEL author=general
+LABEL email="generals.space@gmail.com"
+## 环境变量, 使docker容器支持中文
+ENV LANG C.UTF-8
+
+RUN yum install -y openssh-server openssh-clients \
+    && yum clean all \
+    && rm -rf /var/cache/yum
+
+RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -P '' \
+    && ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -P '' \
+    && ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -P '' \
+    && ssh-keygen -t rsa -f /root/.ssh/id_rsa -P '' \
+    && cat /root/.ssh/id_rsa.pub > /root/.ssh/authorized_keys \ 
+    && echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config
+
+RUN pip3 install ansible
+
+CMD /sbin/sshd && tail -f /etc/profile
