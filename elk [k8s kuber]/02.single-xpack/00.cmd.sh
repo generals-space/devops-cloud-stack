@@ -6,4 +6,11 @@ kubectl create configmap logstash-config --from-file=./cm/logstash/logstash.yml
 kubectl create configmap logstash-pipeline-config --from-file=./cm/logstash/pipeline
 kubectl create configmap nginx-config --from-file=./cm/nginx/nginx.conf
 
-## kubectl delete cm es-config kibana-config logstash-config logstash-pipeline-config nginx-config
+#### kibana 密文密码配置, 其中内容为
+## elasticsearch.username: elastic
+## elasticsearch.password: "123456"
+## 
+## kubectl create configmap kibana-keystore --from-file=./cm/kibana/kibana.keystore
+
+## kubectl delete cm es-config kibana-config logstash-config logstash-pipeline-config nginx-config kibana-keystore
+

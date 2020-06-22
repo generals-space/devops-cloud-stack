@@ -37,7 +37,7 @@ spec:
           env: 
             ## jvm 参数在一个独立的配置文件 jvm.options 中.
             - name: ES_JAVA_OPTS
-              value: "-Xmx1g -Xms1g"
+              value: "-Xmx512m -Xms512m"
             ## es配置文件中的所有键应该都可以在 env 中直接设置, 比如
             ## name: xpack.security.enabled
             ## value: 'true'
@@ -98,7 +98,15 @@ spec:
             - name: kibana-config-vol
               mountPath: /usr/share/kibana/config/kibana.yml
               subPath: kibana.yml
+          ## volumeMounts:
+          ##   - name: kibana-keystore-vol
+          ##     mountPath: /usr/share/kibana/data/kibana.keystore
+          ##     subPath: kibana.keystore
       volumes:
         - name: kibana-config-vol
           configMap:
             name: kibana-config
+        ## - name: kibana-keystore-vol
+        ##   configMap:
+        ##     name: kibana-keystore
+  
