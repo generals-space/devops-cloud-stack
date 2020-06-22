@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  ## deploy 生成的 pod 的名称也是 kibana-xxx
+  name: kibana
+  labels:
+    app: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      ## 这里的 label 是与下面的 template -> metadata -> label 匹配的,
+      ## 表示一种管理关系
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+        - name: kibana
+          image: kibana:7.2.0
+          imagePullPolicy: IfNotPresent
+          env: 
+            ## 这里的 es 指的是 service 名称
+            - name: ELASTICSEARCH_HOSTS
+              value: http://es-cluster:9200
+            ## 其实 username 和 password 在配置文件或是环境变量中定义都可以,
+            ## 但是貌似使用环境变量的时候, 密码不能定义为 123456, 哪怕已经用双引号包裹.
+            ## 所以这里把这两个 key 注释掉, 写在了配置文件里...
+            ## - name: ELASTICSEARCH_USERNAME
+            ##   value: "elastic"
+            ## - name: ELASTICSEARCH_PASSWORD
+            ##   value: "123456"
+          volumeMounts:
+            - name: kibana-config-vol
+              mountPath: /usr/share/kibana/config/kibana.yml
+              subPath: kibana.yml
+      volumes:
+        - name: kibana-config-vol
+          configMap:
+            name: kibana-config

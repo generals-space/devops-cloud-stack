@@ -5,3 +5,5 @@ kubectl create configmap kibana-config --from-file=./cm/kibana/kibana.yml
 kubectl create configmap logstash-config --from-file=./cm/logstash/logstash.yml
 kubectl create configmap logstash-pipeline-config --from-file=./cm/logstash/pipeline
 kubectl create configmap nginx-config --from-file=./cm/nginx/nginx.conf
+
+## kubectl delete cm es-config kibana-config logstash-config logstash-pipeline-config nginx-config
