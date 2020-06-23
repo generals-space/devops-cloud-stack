@@ -1,0 +1,85 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: es-cluster-public
+  labels:
+    app: es-cluster
+spec:
+  ## 区别于 es-cluster 的 headless service,
+  ## 此处的 service 由 head 服务来访问
+  ports:
+    - port: 9200
+      name: http
+      targetPort: 9200
+      nodePort: 30920
+  selector:
+    ## 注意: service 的 selector 需要指定的是 
+    ## Deployment -> spec -> template -> labels,
+    ## 而不是 Deployment -> metadata -> lables.
+    ## 可以说, Service与Deployment最终指向的目标都是Pod资源.
+    app: es-cluster
+  type: NodePort
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  labels:
+    app: kibana
+spec:
+  ports:
+    - port: 5601
+      name: webui
+      targetPort: 5601
+      nodePort: 30601
+  selector:
+    ## 注意: service 的 selector 需要指定的是 
+    ## Deployment -> spec -> template -> labels,
+    ## 而不是 Deployment -> metadata -> lables.
+    ## 可以说, Service与Deployment最终指向的目标都是Pod资源.
+    app: kibana
+  type: NodePort
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+    - port: 8080
+      name: nginx
+      targetPort: 8080
+      nodePort: 31080
+  selector:
+    ## 注意: service 的 selector 需要指定的是 
+    ## Deployment -> spec -> template -> labels,
+    ## 而不是 Deployment -> metadata -> lables.
+    ## 可以说, Service与Deployment最终指向的目标都是Pod资源.
+    app: nginx
+  type: NodePort
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: es-head
+  labels:
+    app: es-head
+spec:
+  ports:
+    - port: 9100
+      name: webui
+      targetPort: 9100
+      nodePort: 30910
+  selector:
+    ## 注意: service 的 selector 需要指定的是 
+    ## Deployment -> spec -> template -> labels,
+    ## 而不是 Deployment -> metadata -> lables.
+    ## 可以说, Service与Deployment最终指向的目标都是Pod资源.
+    app: es-head
+  type: NodePort
