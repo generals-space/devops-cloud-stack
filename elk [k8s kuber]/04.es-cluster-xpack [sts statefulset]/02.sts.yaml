@@ -72,6 +72,7 @@ spec:
               value: es-cluster
             ## 用 POD_NAME 作 es 节点的 node.name,
             ## 其值为 ${CLUSTER_NAME}-0, ${CLUSTER_NAME}-1 这种.
+            ## 当然, 其实与内置的 HOSTNAME 是相同的.
             - name: POD_NAME
               valueFrom:
                 fieldRef:
@@ -95,7 +96,14 @@ spec:
               mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
               ## subPath 的意思是, 该 configmap 并不影响整个目录, 只影响 elasticsearch.yml 这一文件.
               subPath: elasticsearch.yml
+            - name: es-certs-vol
+              mountPath: /usr/share/elasticsearch/config/elastic-certificates.p12
+              ## subPath 的意思是, 该 configmap 并不影响整个目录, 只影响 elastic-certificates.p12 这一文件.
+              subPath: elastic-certificates.p12
       volumes:
         - name: es-config-vol
           configMap:
             name: es-config
+        - name: es-certs-vol
+          configMap:
+            name: es-certs

@@ -11,11 +11,11 @@ bootstrap.memory_lock: false
 bootstrap.system_call_filter: false
 ## 这里的数组成员为各节点的 node.name 值.
 cluster.initial_master_nodes: 
-  - "${CLUSTER_NAME}-0"
-  - "${CLUSTER_NAME}-1"
-  - "${CLUSTER_NAME}-2"
+  - ${CLUSTER_NAME}-0
+  - ${CLUSTER_NAME}-1
+  - ${CLUSTER_NAME}-2
 ## 配置该节点会与哪些候选地址进行通信, 端口可以不写, 默认为9300.
 discovery.seed_hosts:
-  - "${CLUSTER_NAME}-0.${SVC_NAME}"
-  - "${CLUSTER_NAME}-1.${SVC_NAME}"
-  - "${CLUSTER_NAME}-2.${SVC_NAME}"
+  - ${CLUSTER_NAME}-0.${SVC_NAME}
+  - ${CLUSTER_NAME}-1.${SVC_NAME}
+  - ${CLUSTER_NAME}-2.${SVC_NAME}

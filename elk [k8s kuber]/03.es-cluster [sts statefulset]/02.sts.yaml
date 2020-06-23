@@ -72,6 +72,7 @@ spec:
               value: es-cluster
             ## 用 POD_NAME 作 es 节点的 node.name,
             ## 其值为 ${CLUSTER_NAME}-0, ${CLUSTER_NAME}-1 这种.
+            ## 当然, 其实与内置的 HOSTNAME 是相同的.
             - name: POD_NAME
               valueFrom:
                 fieldRef:
