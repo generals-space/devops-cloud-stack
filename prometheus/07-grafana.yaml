@@ -11,13 +11,14 @@ metadata:
 spec:
   selector:
     name: grafana
-    phase: prod
   ports:
-    - name: http
-      protocol: TCP
-      port: 3000
+  - name: http
+    protocol: TCP
+    port: 3000
+    nodePort: 30300
+  type: NodePort
 ---
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
@@ -31,19 +32,17 @@ spec:
   selector:
     matchLabels:
       name: grafana
-      phase: prod
   template:
     metadata:
       labels:
         name: grafana
-        phase: prod
     spec:
       securityContext:
         fsGroup: 472
         runAsUser: 0
       containers:
         - name: grafana
-          image: harbor.tongbanjie.org/k8s/grafana:5.4.3
+          image: grafana/grafana:7.1.5
           env:
             - name: GF_AUTH_BASIC_ENABLED
               value: "false"
@@ -61,11 +60,3 @@ spec:
             limits:
               memory: 200Mi
               cpu: 200m
-          volumeMounts:
-          - name: data
-            mountPath: /var/lib/grafana
-      volumes:
-        - name: data
-          nfs:
-            server: 192.168.7.14
-            path: /mnt/nfsvol/monitoring/grafana

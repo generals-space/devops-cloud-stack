@@ -10,18 +10,21 @@ spec:
     port: 9090
     protocol: TCP
     targetPort: 9090
+    nodePort: 30090
   selector:
     name: prometheus
-    phase: prod
-
+  type: NodePort
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus
   namespace: monitoring
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: prometheus
   strategy:
     rollingUpdate:
       maxUnavailable: 1
@@ -29,7 +32,6 @@ spec:
     metadata:
       labels:
         name: prometheus
-        phase: prod
     spec:
       securityContext:
         fsGroup: 472
@@ -37,13 +39,18 @@ spec:
       serviceAccountName: prometheus
       containers:
       - name: prometheus
-        image: harbor.tongbanjie.org/k8s/prometheus:v2.5.0
+        image: prom/prometheus:v2.20.1
         args:
           - "--config.file=/etc/prometheus/prometheus.yaml"
-          - "--storage.tsdb.path=/prometheus" ## TSDB 数据的存储路径
-          - "--storage.tsdb.retention=168h" ## 保留多长时间的数据
-          - "--web.enable-lifecycle" ## 非常重要, 开启热更新支持, 有了这个参数之后, prometheus.yml 配置文件只要更新了, 通过执行http://localhost:9090/-/reload就会立即生效, 所以一定要加上这个参数
-          - "--web.enable-admin-api" ## 开启此选项, 可以操作数据库功能
+          ## TSDB 数据的存储路径
+          ## - "--storage.tsdb.path=/prometheus" 
+          ## 保留多长时间的数据
+          - "--storage.tsdb.retention=168h" 
+          ## 非常重要, 开启热更新支持, 有了这个参数之后, prometheus.yml 配置文件只要更新了, 
+          ## 通过执行http://localhost:9090/-/reload就会立即生效, 所以一定要加上这个参数
+          - "--web.enable-lifecycle" 
+          ## 开启此选项, 可以操作数据库功能
+          - "--web.enable-admin-api" 
         ports:
         - name: web
           containerPort: 9090
@@ -52,8 +59,6 @@ spec:
           mountPath: /etc/prometheus
         - name: rules
           mountPath: /etc/prometheus/rules
-        - name: data
-          mountPath: /prometheus
         - mountPath: /var/run/secrets/etcd-sercret
           name: etcd-secret
         - mountPath: /etc/localtime
@@ -77,7 +82,3 @@ spec:
         hostPath:
           path: /etc/localtime
           type: ""
-      - name: data
-        nfs:
-          server: 192.168.7.14
-          path: /mnt/nfsvol/monitoring/prometheus

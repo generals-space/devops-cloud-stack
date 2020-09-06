@@ -91,9 +91,9 @@ scrape_configs:
   - job_name: etcd
     scheme: https
     tls_config:
-      ca_file: /var/run/secrets/etcd-sercret/ca.pem
-      cert_file: /var/run/secrets/etcd-sercret/etcd.pem
-      key_file: /var/run/secrets/etcd-sercret/etcd-key.pem
+      ca_file: /var/run/secrets/etcd-sercret/ca.crt
+      cert_file: /var/run/secrets/etcd-sercret/server.crt
+      key_file: /var/run/secrets/etcd-sercret/server.key
       insecure_skip_verify: false
     static_configs:
       - targets: 

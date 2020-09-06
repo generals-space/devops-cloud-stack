@@ -36,7 +36,7 @@ spec:
           configMap:
             name: blackbox-exporter-config
       containers:
-      - image: prom/blackbox-exporter
+      - image: prom/blackbox-exporter:v0.17.0
         imagePullPolicy: IfNotPresent
         name: blackbox-exporter
         ## 开启调试

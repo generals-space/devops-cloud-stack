@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: node-exporter
@@ -11,14 +11,11 @@ spec:
   selector:
     matchLabels:
       name: node-exporter
-      phase: prod
   template:
     metadata:
       labels:
         name: node-exporter
-        phase: prod
     spec:
-      serviceAccountName: node-exporter
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
@@ -26,7 +23,7 @@ spec:
       hostPID: true
       containers:
       - name: node-exporter
-        image: harbor.tongbanjie.org/k8s/node-exporter:v0.17.0
+        image: prom/node-exporter:v0.17.0
         args:
           - "--path.procfs=/host/proc"
           - "--path.sysfs=/host/sys"
