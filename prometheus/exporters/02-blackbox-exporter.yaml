@@ -10,9 +10,11 @@ spec:
   - name: blackbox
     port: 9115
     protocol: TCP
+    nodePort: 30915
   selector:
     app: blackbox-exporter
-  type: ClusterIP
+  ## type: ClusterIP
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
