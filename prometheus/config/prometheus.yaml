@@ -16,6 +16,7 @@ scrape_configs:
   - job_name: prometheus
     static_configs:
       - targets: 
+        ## 这里是 prometheus 自身的健康状态的检测, 写 localhost 没毛病
         - localhost:9090
   ## job prometheus end ...
 
@@ -29,21 +30,22 @@ scrape_configs:
         - monitoring
   ## job grafana end ...
 
-  - job_name: etcd
-    scheme: https
-    tls_config:
-      ca_file: /var/run/secrets/etcd-sercret/ca.crt
-      cert_file: /var/run/secrets/etcd-sercret/server.crt
-      key_file: /var/run/secrets/etcd-sercret/server.key
-      insecure_skip_verify: false
-    static_configs:
-      ## 如果etcd使用的是外部集群, 则只能使用static_configs完成信息的收集.
-      ## 无法通过kuber集群提供的API获取.
-      - targets: 
-        - 192.168.7.13:2379
-        - 192.168.7.14:2379
-        - 192.168.7.15:2379
-  ## job etcd end ...
+  
+  ## ## 如果etcd使用的是外部集群, 则只能使用static_configs完成信息的收集.
+  ## ## 无法通过kuber集群提供的API获取.
+  ## - job_name: etcd
+  ##   scheme: https
+  ##   tls_config:
+  ##     ca_file: /var/run/secrets/etcd-sercret/ca.crt
+  ##     cert_file: /var/run/secrets/etcd-sercret/server.crt
+  ##     key_file: /var/run/secrets/etcd-sercret/server.key
+  ##     insecure_skip_verify: false
+  ##   static_configs:
+  ##     - targets: 
+  ##       - 192.168.7.13:2379
+  ##       - 192.168.7.14:2379
+  ##       - 192.168.7.15:2379
+  ## ## job etcd end ...
 
   - job_name: 'kubernetes-apiservers'
     kubernetes_sd_configs:
@@ -137,6 +139,7 @@ scrape_configs:
     relabel_configs:
     - target_label: __address__
       replacement: blackbox-exporter:9115
+
   - job_name: 'kubernetes-endpoints'
     kubernetes_sd_configs:
     - role: endpoints

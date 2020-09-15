@@ -1,3 +1,5 @@
+## node exporter 的网络模式为 hostNetwork, 不需要 NodePort 的 Service
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -25,12 +27,12 @@ spec:
       - name: node-exporter
         image: prom/node-exporter:v0.17.0
         args:
-          - "--path.procfs=/host/proc"
-          - "--path.sysfs=/host/sys"
+        - "--path.procfs=/host/proc"
+        - "--path.sysfs=/host/sys"
         ports:
-          - name: metrics
-            containerPort: 9100
-            hostPort: 9100
+        - name: metrics
+          containerPort: 9100
+          hostPort: 9100
         resources:
           requests:
             memory: 1024Mi
@@ -39,19 +41,19 @@ spec:
             memory: 2048Mi
             cpu: 2048m
         volumeMounts:
-          - name: proc
-            mountPath: /host/proc
-            readOnly:  true
-          - name: sys
-            mountPath: /host/sys
-            readOnly: true
-      tolerations:
-        - effect: NoSchedule
-          operator: Exists
-      volumes:
         - name: proc
-          hostPath:
-            path: /proc
+          mountPath: /host/proc
+          readOnly:  true
         - name: sys
-          hostPath:
-            path: /sys
+          mountPath: /host/sys
+          readOnly: true
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      volumes:
+      - name: proc
+        hostPath:
+          path: /proc
+      - name: sys
+        hostPath:
+          path: /sys
