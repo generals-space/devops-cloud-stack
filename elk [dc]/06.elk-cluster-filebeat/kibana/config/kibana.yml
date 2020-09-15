@@ -1,0 +1,9 @@
+server.name: kibana
+server.host: "0.0.0.0"
+elasticsearch.hosts: 
+  - http://esc-master-0:9200
+  - http://esc-master-1:9200
+  - http://esc-master-2:9200
+
+elasticsearch.username: elastic
+elasticsearch.password: "123456"

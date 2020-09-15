@@ -1,0 +1,14 @@
+cluster.name: esc
+network.host: 0.0.0.0
+http.port: 9200
+## path.data: /home/elasticsearch
+bootstrap.memory_lock: false
+bootstrap.system_call_filter: false
+cluster.initial_master_nodes: 
+  - esc-master-0
+  - esc-master-1
+  - esc-master-2
+discovery.seed_hosts: 
+  - esc-master-0
+  - esc-master-1
+  - esc-master-2
