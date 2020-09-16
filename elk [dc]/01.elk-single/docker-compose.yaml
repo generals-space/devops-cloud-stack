@@ -29,7 +29,7 @@ services:
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
   nginx:
-    image: generals/centos7
+    image: registry.cn-hangzhou.aliyuncs.com/generals-space/centos7-devops
     ports:
       - 9001:8080
     volumes:

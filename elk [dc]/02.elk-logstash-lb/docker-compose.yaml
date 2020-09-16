@@ -34,7 +34,7 @@ services:
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
   nginx-01:
-    image: generals/centos7
+    image: registry.cn-hangzhou.aliyuncs.com/generals-space/centos7-devops
     ports:
       - 9001:8080
     volumes:
@@ -42,7 +42,7 @@ services:
       - ./data/logs/nginx01:/var/log/nginx
     command: ["tail", "-f", "/etc/profile"]
   nginx-02:
-    image: generals/centos7
+    image: registry.cn-hangzhou.aliyuncs.com/generals-space/centos7-devops
     ports:
       - 9002:8080
     volumes:

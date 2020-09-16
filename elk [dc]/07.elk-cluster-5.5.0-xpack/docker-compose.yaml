@@ -1,38 +1,48 @@
 version: '3'
 
 services:
-  elasticsearch:
-    image: elasticsearch:7.2.0
+  esc-master-0:
+    image: elasticsearch:5.5.0
     ports:
       - 9200:9200
       - 9300:9300
     environment:
+      node.name: esc-master-0
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      ELASTIC_PASSWORD: 123456
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-  zookeeper:
-    image: zookeeper
-    ports:
-      - "2181:2181"
-  kafka:
-    image: wurstmeister/kafka # docker hub上star最多, pull次数最多的非官方镜像(因为没有官方镜像)
-    ports:
-      - 9092:9092
+  esc-master-1:
+    image: elasticsearch:5.5.0
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: kafka
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      node.name: esc-master-1
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
-      - ./data/logs/kafka:/kafka
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+  esc-master-2:
+    image: elasticsearch:5.5.0
+    environment:
+      node.name: esc-master-2
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+  esc-data-0:
+    image: elasticsearch:5.5.0
+    environment:
+      node.name: esc-data-0
+      node.master: "false"
+      node.data: "true"
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
   logstash:
-    image: logstash:7.2.0
+    image: logstash:5.5.0
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
   kibana:
-    image: kibana:7.2.0
+    image: kibana:5.5.0
     ports:
       - 5601:5601
     volumes:
@@ -47,7 +57,7 @@ services:
     command: ["tail", "-f", "/etc/profile"]
   filebeat-01:
     hostname: node-01
-    image: elastic/filebeat:7.2.0
+    image: elastic/filebeat:5.5.0
     volumes:
       - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - ./data/logs/nginx01:/var/log/nginx
@@ -61,7 +71,7 @@ services:
     command: ["tail", "-f", "/etc/profile"]
   filebeat-02:
     hostname: node-02
-    image: elastic/filebeat:7.2.0
+    image: elastic/filebeat:5.5.0
     volumes:
       - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - ./data/logs/nginx02:/var/log/nginx
