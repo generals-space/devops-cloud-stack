@@ -39,39 +39,21 @@ services:
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ./logstash/config/logstash.conf:/usr/share/logstash/config/logstash.conf:ro
+      - ./data/logs/nginx:/var/log/nginx
+      ## logstash 5.5.0 貌似没有单独的 pipeline 目录
+      ## - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    command: ["logstash", "-f", "/usr/share/logstash/config/logstash.conf"]
   kibana:
     image: kibana:5.5.0
     ports:
       - 5601:5601
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
-  nginx-01:
-    image: registry.cn-hangzhou.aliyuncs.com/generals-space/centos7-devops
+  nginx:
+    image: nginx:1.12.0
     ports:
       - 9001:8080
     volumes:
-      - ./nginx/config/nginx.conf:/etc/nginx/conf.d/nginx.conf
-      - ./data/logs/nginx01:/var/log/nginx
-    command: ["tail", "-f", "/etc/profile"]
-  filebeat-01:
-    hostname: node-01
-    image: elastic/filebeat:5.5.0
-    volumes:
-      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./data/logs/nginx01:/var/log/nginx
-  nginx-02:
-    image: registry.cn-hangzhou.aliyuncs.com/generals-space/centos7-devops
-    ports:
-      - 9002:8080
-    volumes:
-      - ./nginx/config/nginx.conf:/etc/nginx/conf.d/nginx.conf
-      - ./data/logs/nginx02:/var/log/nginx
-    command: ["tail", "-f", "/etc/profile"]
-  filebeat-02:
-    hostname: node-02
-    image: elastic/filebeat:5.5.0
-    volumes:
-      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./data/logs/nginx02:/var/log/nginx
+      - ./nginx/config/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
+      - ./data/logs/nginx:/var/log/nginx
