@@ -1,0 +1,7 @@
+server.name: kibana
+server.host: "0.0.0.0"
+elasticsearch.url: http://esc-master-0:9200
+
+## xpack.security.enabled: true
+## elasticsearch.username: elastic
+## elasticsearch.password: changeme

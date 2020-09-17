@@ -1,0 +1,2 @@
+2020/09/16 03:59:12 [error] 7#7: *1 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.25.0.1, server: , request: "GET /favicon.ico HTTP/1.1", host: "localhost:9001", referrer: "http://localhost:9001/"
+2020/09/16 03:59:12 [error] 7#7: *1 open() "/usr/share/nginx/html/404.html" failed (2: No such file or directory), client: 172.25.0.1, server: , request: "GET /favicon.ico HTTP/1.1", host: "localhost:9001", referrer: "http://localhost:9001/"
