@@ -1,4 +1,9 @@
 cluster.name: esc
+node.name: ${ES_NODE_NAME}
+## 默认为 false
+node.master: ${ES_NODE_MASTER:false}
+node.data: ${ES_NODE_DATA:false}
+
 network.host: 0.0.0.0
 http.port: 9200
 ## path.data: /home/elasticsearch

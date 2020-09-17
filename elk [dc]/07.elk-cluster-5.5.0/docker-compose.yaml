@@ -7,30 +7,36 @@ services:
       - 9200:9200
       - 9300:9300
     environment:
-      node.name: esc-master-0
+      ## 5.5.0 版本不支持在环境变量中直接使用 node.name 这样的键
+      ES_NODE_NAME: esc-master-0
+      ES_NODE_MASTER: "true"
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
   esc-master-1:
     image: elasticsearch:5.5.0
     environment:
-      node.name: esc-master-1
+      ## 5.5.0 版本不支持在环境变量中直接使用 node.name 这样的键
+      ES_NODE_NAME: esc-master-1
+      ES_NODE_MASTER: "true"
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
   esc-master-2:
     image: elasticsearch:5.5.0
     environment:
-      node.name: esc-master-2
+      ## 5.5.0 版本不支持在环境变量中直接使用 node.name 这样的键
+      ES_NODE_NAME: esc-master-2
+      ES_NODE_MASTER: "true"
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
   esc-data-0:
     image: elasticsearch:5.5.0
     environment:
-      node.name: esc-data-0
-      node.master: "false"
-      node.data: "true"
+      ## 5.5.0 版本不支持在环境变量中直接使用 node.name 这样的键
+      ES_NODE_NAME: esc-data-0
+      ES_NODE_DATA: "true"
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
