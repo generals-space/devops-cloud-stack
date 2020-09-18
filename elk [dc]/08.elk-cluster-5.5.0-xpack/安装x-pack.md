@@ -164,3 +164,16 @@ $ curl -u elastic:changeme localhost:9200/_cat/health
 
 相较于未开启`x-pack`时, 左侧菜单多了`Machine Learning`, `Gragh`和`Monitoring`几个选项.
 
+## 4. 后记
+
+除了使用`elasticsearch-plugins install`安装插件, 其实也可以从安装好插件的`plugins`目录下将`x-pack`目录拷贝出来, 这个目录下全是jar包.
+
+在启动时将这个目录直接映射到`plugins`目录中即可直接使用`x-pack`插件.
+
+```yaml
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./data/x-pack:/usr/share/elasticsearch/plugins/x-pack
+```
+
+不过`x-pack`除了在`plugins`生成子目录外, 还在`bin`目录下生成了一个`x-pack`子目录, 其下都是可执行文件, 如果不映射这些文件, 那么这些命令就没法直接用了.
