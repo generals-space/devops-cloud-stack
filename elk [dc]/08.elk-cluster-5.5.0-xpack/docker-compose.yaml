@@ -13,6 +13,8 @@ services:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./data/esc-master-0/data:/usr/share/elasticsearch/data
+      ## - ./data/x-pack:/usr/share/elasticsearch/plugins/x-pack
   esc-master-1:
     image: elasticsearch:5.5.0
     environment:
@@ -22,6 +24,8 @@ services:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./data/esc-master-1/data:/usr/share/elasticsearch/data
+      ## - ./data/x-pack:/usr/share/elasticsearch/plugins/x-pack
   esc-master-2:
     image: elasticsearch:5.5.0
     environment:
@@ -31,6 +35,8 @@ services:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./data/esc-master-2/data:/usr/share/elasticsearch/data
+      ## - ./data/x-pack:/usr/share/elasticsearch/plugins/x-pack
   esc-data-0:
     image: elasticsearch:5.5.0
     environment:
@@ -40,6 +46,8 @@ services:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./data/esc-data-0/data:/usr/share/elasticsearch/data
+      ## - ./data/x-pack:/usr/share/elasticsearch/plugins/x-pack
   logstash:
     image: logstash:5.5.0
     environment:
@@ -56,6 +64,7 @@ services:
       - 5601:5601
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+      ## - ./data/kibana/x-pack:/usr/share/elasticsearch/plugins/x-pack
   nginx:
     image: nginx:1.12.0
     ports:

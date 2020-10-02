@@ -13,6 +13,7 @@ services:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./data/esc-master-0/data:/usr/share/elasticsearch/data
   esc-master-1:
     image: elasticsearch:5.5.0
     environment:
@@ -22,6 +23,7 @@ services:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./data/esc-master-1/data:/usr/share/elasticsearch/data
   esc-master-2:
     image: elasticsearch:5.5.0
     environment:
@@ -31,6 +33,7 @@ services:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./data/esc-master-2/data:/usr/share/elasticsearch/data
   esc-data-0:
     image: elasticsearch:5.5.0
     environment:
@@ -40,6 +43,7 @@ services:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./data/esc-data-0/data:/usr/share/elasticsearch/data
   logstash:
     image: logstash:5.5.0
     environment:
