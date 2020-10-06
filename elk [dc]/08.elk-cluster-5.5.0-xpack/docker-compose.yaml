@@ -48,6 +48,17 @@ services:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
       - ./data/esc-data-0/data:/usr/share/elasticsearch/data
       ## - ./data/x-pack:/usr/share/elasticsearch/plugins/x-pack
+  esc-data-1:
+    image: elasticsearch:5.5.0
+    environment:
+      ## 5.5.0 版本不支持在环境变量中直接使用 node.name 这样的键
+      ES_NODE_NAME: esc-data-1
+      ES_NODE_DATA: "true"
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./data/esc-data-1/data:/usr/share/elasticsearch/data
+      ## - ./data/x-pack:/usr/share/elasticsearch/plugins/x-pack
   logstash:
     image: logstash:5.5.0
     environment:
@@ -64,7 +75,7 @@ services:
       - 5601:5601
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
-      ## - ./data/kibana/x-pack:/usr/share/elasticsearch/plugins/x-pack
+      - ./data/kibana/x-pack:/usr/share/kibana/plugins/x-pack
   nginx:
     image: nginx:1.12.0
     ports:
