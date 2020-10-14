@@ -54,6 +54,7 @@ services:
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./logstash/pipeline01:/usr/share/logstash/pipeline:ro
+      ## - ./logstash/grok/patterns:/usr/share/logstash/grok/patterns:ro
       - ./data/logs/nginx01:/var/log/nginx
   nginx-02:
     image: nginx:1.12.0
@@ -69,4 +70,5 @@ services:
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./logstash/pipeline02:/usr/share/logstash/pipeline:ro
+      ## - ./logstash/grok/patterns:/usr/share/logstash/grok/patterns:ro
       - ./data/logs/nginx02:/var/log/nginx
