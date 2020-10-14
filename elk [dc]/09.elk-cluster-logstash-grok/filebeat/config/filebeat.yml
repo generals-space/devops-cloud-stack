@@ -1,0 +1,12 @@
+filebeat:
+  inputs:
+  - type: log
+    enabled: true
+    paths:
+    - /var/log/nginx/access_json.log
+output:
+  elasticsearch:
+    enabled: true
+    hosts: ["esc-master-0:9200"]
+    ## username: "elastic"
+    ## password: "abcdef"
