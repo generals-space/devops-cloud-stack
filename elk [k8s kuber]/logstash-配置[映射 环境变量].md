@@ -1,8 +1,9 @@
 参考文章
 
 1. [一文快速上手Logstash](https://cloud.tencent.com/developer/article/1353068)
-
 2. [logstash收集TCP端口日志](https://www.cnblogs.com/Dev0ps/p/9314551.html)
+3. [Using Environment Variables in the Configuration](https://www.elastic.co/guide/en/logstash/current/environment-variables.html)
+    - 配置文件中使用环境变量, 以及默认配置的使用
 
 ## 认识
 

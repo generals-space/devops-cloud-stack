@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  elasticsearch:
+    image: elasticsearch:7.2.0
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+  kibana:
+    image: kibana:7.2.0
+    ports:
+      - 5601:5601
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+  nginx:
+    image: nginx:1.12.0
+    ports:
+      - 9001:8080
+    volumes:
+      - ./nginx/config/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./data/logs/nginx:/var/log/nginx
+  filebeat:
+    image: elastic/filebeat:7.2.0
+    volumes:
+      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./data/logs/nginx:/var/log/nginx

@@ -1,0 +1,17 @@
+filebeat:
+  inputs:
+  - type: log
+    enabled: true
+    paths:
+    - /var/log/nginx/access_json.log
+    fileds:
+      log_topics: nginx-log
+output:
+  elasticsearch:
+    enabled: true
+    hosts: ["elasticsearch:9200"]
+    ## 这里的 pipeline 是在 es 中创建的, 
+    ## 可以为不同的 input 指定不同的 pipeline 名称
+    pipeline: '%{[log_topics]}'
+
+logging.level: debug

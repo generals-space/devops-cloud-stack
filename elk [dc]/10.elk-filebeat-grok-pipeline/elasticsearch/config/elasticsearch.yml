@@ -1,0 +1,9 @@
+cluster.name: elasticsearch
+node.name: es-01
+network.host: 0.0.0.0
+http.port: 9200
+## path.data: /home/elasticsearch
+bootstrap.memory_lock: false
+bootstrap.system_call_filter: false
+cluster.initial_master_nodes: ["es-01"]
+
