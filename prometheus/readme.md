@@ -18,7 +18,7 @@ kubectl -n monitoring create secret generic etcd-certs --from-file=/etc/kubernet
 
 ## 2. 
 
-修改`/etc/kubernetes/manifests/`目录下`kube-controller-manager.yaml`与`kube-scheduler.yaml`, 将其中的`--address=127.0.0.1`修改为`--address=0.0.0.0`, 然后重启kubelet服务.
+修改`/etc/kubernetes/manifests/`目录下`kube-controller-manager.yaml`与`kube-scheduler.yaml`, 将其中的`--address=127.0.0.1`修改为`--address=0.0.0.0`.
 
 注意: 所有master节点止的`controller manager`和`scheduler`的配置都要修改.
 

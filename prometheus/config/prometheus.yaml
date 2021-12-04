@@ -1,5 +1,5 @@
 global:
-  scrape_interval: 15s
+  scrape_interval: 10s
 
 alerting:
   alertmanagers:
@@ -8,147 +8,250 @@ alerting:
       - alertmanager:9093
 
 rule_files:
-  - "/etc/prometheus/rules/*.rules"
-  - "/etc/prometheus/rules/*.yaml"
-  - "/etc/prometheus/rules/*.yml"
+- "/etc/prometheus/rules/*.rules"
+- "/etc/prometheus/rules/*.yaml"
+- "/etc/prometheus/rules/*.yml"
 
 scrape_configs:
-  - job_name: prometheus
-    static_configs:
-      - targets: 
-        ## 这里是 prometheus 自身的健康状态的检测, 写 localhost 没毛病
-        - localhost:9090
-  ## job prometheus end ...
+## 这里是 prometheus 自身的健康状态的检测, 写 localhost 没毛病
+- job_name: prometheus
+  static_configs:
+  - targets: 
+    - localhost:9090
+## job prometheus end ...
 
-  - job_name: grafana
-    metrics_path: /metrics
-    scheme: http
-    kubernetes_sd_configs:
-    - role: endpoints
-      namespaces:
-        names:
-        - monitoring
-  ## job grafana end ...
+- job_name: grafana
+  metrics_path: /metrics
+  scheme: http
+  kubernetes_sd_configs:
+  - role: endpoints
+    namespaces:
+      names:
+      - monitoring
+## job grafana end ...
 
-  
-  ## ## 如果etcd使用的是外部集群, 则只能使用static_configs完成信息的收集.
-  ## ## 无法通过kuber集群提供的API获取.
-  ## - job_name: etcd
-  ##   scheme: https
-  ##   tls_config:
-  ##     ca_file: /var/run/secrets/etcd-sercret/ca.crt
-  ##     cert_file: /var/run/secrets/etcd-sercret/server.crt
-  ##     key_file: /var/run/secrets/etcd-sercret/server.key
-  ##     insecure_skip_verify: false
-  ##   static_configs:
-  ##     - targets: 
-  ##       - 192.168.7.13:2379
-  ##       - 192.168.7.14:2379
-  ##       - 192.168.7.15:2379
-  ## ## job etcd end ...
+## ## 如果etcd使用的是外部集群, 则只能使用static_configs完成信息的收集.
+## ## 无法通过kuber集群提供的API获取.
+## - job_name: etcd
+##   scheme: https
+##   tls_config:
+##     ca_file: /var/run/secrets/etcd-sercret/ca.crt
+##     cert_file: /var/run/secrets/etcd-sercret/server.crt
+##     key_file: /var/run/secrets/etcd-sercret/server.key
+##     insecure_skip_verify: false
+##   static_configs:
+##   - targets: 
+##     - 192.168.7.13:2379
+##     - 192.168.7.14:2379
+##     - 192.168.7.15:2379
+## ## job etcd end ...
 
-  - job_name: 'kubernetes-apiservers'
-    kubernetes_sd_configs:
-    - role: endpoints
-      namespaces:
-        names:
-        - default
-    scheme: https
-    tls_config:
-      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-    relabel_configs:
-    - action: keep
-      source_labels: [__meta_kubernetes_service_name]
-      regex: kubernetes
-  ## job kubernetes-apiservers end ...
+################################################################################
+- job_name: 'kubernetes-apiservers'
+  kubernetes_sd_configs:
+  - role: endpoints
+    namespaces:
+      names:
+      - default
+  scheme: https
+  tls_config:
+    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  relabel_configs:
+  ## keep 可以看作是过滤操作, 表示只抓取 name 为 kubernetes 的 service 对象
+  - action: keep
+    source_labels: [__meta_kubernetes_service_name]
+    regex: kubernetes
+## job kubernetes-apiservers end ...
 
-  - job_name: 'kube-controller-manager'
-    honor_labels: false
-    kubernetes_sd_configs:
-    - role: endpoints
-      namespaces:
-        names:
-        - kube-system
-    scrape_interval: 30s
-    relabel_configs:
-    - action: keep
-      source_labels:
-      - __meta_kubernetes_service_label_component
-      regex: kube-controller-manager
-  ## job kube-controller-manager end ...
+## 默认无法采集 controller-manager, 因为ta监听的是 127.0.0.1
+- job_name: 'kube-controller-manager'
+  honor_labels: false
+  kubernetes_sd_configs:
+  - role: endpoints
+    namespaces:
+      names:
+      - kube-system
+  scrape_interval: 30s
+  relabel_configs:
+  - action: keep
+    source_labels:
+    - __meta_kubernetes_service_label_component
+    regex: kube-controller-manager
+## job kube-controller-manager end ...
 
-  - job_name: 'kube-scheduler'
-    honor_labels: false
-    kubernetes_sd_configs:
-    - role: endpoints
-      namespaces:
-        names:
-        - kube-system
-    scrape_interval: 30s
-    relabel_configs:
-    - action: keep
-      source_labels:
-      - __meta_kubernetes_service_label_component
-      regex: kube-scheduler
-  ## job kube-scheduler end ...
+## 默认无法采集 controller-manager, 因为ta监听的是 127.0.0.1
+- job_name: 'kube-scheduler'
+  honor_labels: false
+  kubernetes_sd_configs:
+  - role: endpoints
+    namespaces:
+      names:
+      - kube-system
+  scrape_interval: 30s
+  relabel_configs:
+  - action: keep
+    source_labels:
+    - __meta_kubernetes_service_label_component
+    regex: kube-scheduler
+## job kube-scheduler end ...
 
-  - job_name: 'kubelet'
-    kubernetes_sd_configs:
-    - role: node
-    scheme: https
-    tls_config:
-      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-    relabel_configs:
-    - target_label: __address__
-      replacement: kubernetes.default.svc:443
-    - source_labels: [__meta_kubernetes_node_name]
-      regex: (.+)
-      target_label: __metrics_path__
-      replacement: /api/v1/nodes/${1}/proxy/metrics
-  ## job kubelet end ...
+- job_name: 'kubelet'
+  kubernetes_sd_configs:
+  - role: node
+  scheme: https
+  tls_config:
+    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  ## node 的信息无法通过 nodeIP:10250/metrics 采集(至于我目前还不会),
+  ## 所以要借助 apiserver 做一个代理转发.
+  relabel_configs:
+  ## 将 node 地址替换为 apiserver 的 service 地址
+  - target_label: __address__
+    replacement: kubernetes.default.svc:443
+  ## 将 node 名称取出来, 放在 api 路径中.
+  - source_labels: [__meta_kubernetes_node_name]
+    regex: (.+)
+    target_label: __metrics_path__
+    replacement: /api/v1/nodes/${1}/proxy/metrics
+## job kubelet end ...
 
-  - job_name: 'kubernetes-cadvisor'
-    kubernetes_sd_configs:
-    - role: node
-    scheme: https
-    tls_config:
-      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-    relabel_configs:
-    - target_label: __address__
-      replacement: kubernetes.default.svc:443
-    - source_labels: [__meta_kubernetes_node_name]
-      regex: (.+)
-      target_label: __metrics_path__
-      replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
-  ## job kubernetes cadvisor end ...
+################################################################################
 
-  - job_name: 'kubernetes-service'
-    metrics_path: /probe
-    params:
-      module: [http]
-    kubernetes_sd_configs:
-    - role: service
-      namespaces:
-        names:
-        - kube-system
-        - monitoring
-        - tbj-system
-    relabel_configs:
-    - target_label: __address__
-      replacement: blackbox-exporter:9115
+- job_name: 'kubernetes-cadvisor'
+  kubernetes_sd_configs:
+  - role: node
+  scheme: https
+  tls_config:
+    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  relabel_configs:
+  - target_label: __address__
+    replacement: kubernetes.default.svc:443
+  - source_labels: [__meta_kubernetes_node_name]
+    regex: (.+)
+    target_label: __metrics_path__
+    replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+## job kubernetes cadvisor end ...
 
-  - job_name: 'kubernetes-endpoints'
-    kubernetes_sd_configs:
-    - role: endpoints
-      namespaces:
-        names:
-        - kube-system
-        - monitoring
-        - tbj-system
-    relabel_configs:
-    - action: drop
-      source_labels: [__meta_kubernetes_service_name]
-      regex: (kube-dns)|(ingress-nginx-tbj-system)
+- job_name: kubernetes-service-endpoints
+  ## 每隔30秒采取一次
+  scrape_interval: 30s
+  scrape_timeout: 30s
+  metrics_path: /metrics
+  scheme: http
+  kubernetes_sd_configs:
+  - role: endpoints
+  relabel_configs:
+  ## 只过滤注解中拥有 prometheus.io/scrape 键, 且其值为 true 的 service
+  - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+    separator: ;
+    regex: "true"
+    replacement: $1
+    action: keep
+  - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape_scheme]
+    separator: ;
+    regex: (https?)
+    target_label: __scheme__
+    replacement: $1
+    action: replace
+  ## 一个 service 对象中可以拥有多个端口映射, 可以通过注解 prometheus.io/port 指定
+  ## 告诉 prometheus 哪一个端口是 metrics 端口
+  - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+    ## __address__ 为ep的后端服务的地址, 一般为 PodIP:port
+    separator: ;
+    ## 这个 regex 比较难理解啊...
+    ## $1 为 IP 部分(不包含冒号`:`)
+    ## $2 
+    regex: ([^:]+)(?::\d+)?;(\d+)
+    replacement: $1:$2
+    action: replace
+    target_label: __address__
+  ## 一般来说, 指标路径都会是 /metrics, 但是如果些业务需要自定义这个路径也是可以的.
+  ## 通过 prometheus.io/metrics_path 注解定义, 下面的规则会将其赋值给 __metrics_path__ 字段.
+  - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_metric_path]
+    ## seprator, regex, replacement 取出了 source 注解中的值
+    separator: ;
+    regex: (.+)
+    replacement: $1
+    action: replace
+    target_label: __metrics_path__
+  ## 下面的部分将 __meta_ 内置字段更名为自定义字段, 简洁好记, 更易理解.
+  - source_labels: [__meta_kubernetes_namespace]
+    separator: ;
+    regex: (.*)
+    replacement: $1
+    action: replace
+    target_label: namespace
+  - source_labels: [__meta_kubernetes_service_name]
+    separator: ;
+    regex: (.*)
+    replacement: $1
+    action: replace
+    target_label: service_name
+  - source_labels: [__meta_kubernetes_pod_name]
+    separator: ;
+    regex: (.*)
+    replacement: $1
+    action: replace
+    target_label: pod_name
+  - source_labels: [__meta_kubernetes_pod_node_name]
+    separator: ;
+    regex: (.*)
+    replacement: $1
+    action: replace
+    target_label: pod_node_name
+  - source_labels: [__meta_kubernetes_pod_host_ip]
+    separator: ;
+    regex: (.*)
+    replacement: $1
+    action: replace
+    target_label: host
+  ## labelmap 这个行为比较特殊
+  - separator: ;
+    regex: __meta_kubernetes_service_label_(.+)
+    replacement: $1
+    action: labelmap
+
+- job_name: kubernetes-pods
+  scrape_interval: 30s
+  scrape_timeout: 30s
+  metrics_path: /metrics
+  scheme: http
+  kubernetes_sd_configs:
+  - role: pod
+  relabel_configs:
+  - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+    separator: ;
+    regex: "true"
+    replacement: $1
+    action: keep
+  - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+    separator: ;
+    regex: ([^:]+)(?::\d+)?;(\d+)
+    target_label: __address__
+    replacement: $1:$2
+    action: replace
+  - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_metric_path]
+    separator: ;
+    regex: (.+)
+    target_label: __metrics_path__
+    replacement: $1
+    action: replace
+  ## 下面的部分将 __meta_ 内置字段更名为自定义字段, 简洁好记, 更易理解.
+  - source_labels: [__meta_kubernetes_namespace]
+    separator: ;
+    regex: (.*)
+    target_label: namespace
+    replacement: $1
+    action: replace
+  - source_labels: [__meta_kubernetes_pod_name]
+    separator: ;
+    regex: (.*)
+    target_label: pod_name
+    replacement: $1
+    action: replace
+  - separator: ;
+    regex: __meta_kubernetes_pod_label_(.+)
+    replacement: $1
+    action: labelmap

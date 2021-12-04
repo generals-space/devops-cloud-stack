@@ -6,10 +6,6 @@ metadata:
   name: node-exporter
   namespace: monitoring
 spec:
-  updateStrategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 1
   selector:
     matchLabels:
       name: node-exporter

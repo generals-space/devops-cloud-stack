@@ -1,7 +1,7 @@
 groups:
-  - name: etcd3.rules
-    rules:
-      - alert: InsufficientMembers
+- name: etcd3.rules
+  rules:
+  - alert: InsufficientMembers
         expr: count(up{job="etcd"} == 0) > (count(up{job="etcd"}) / 2 - 1)
         for: 3m
         labels:
@@ -9,9 +9,9 @@ groups:
         annotations:
           description: If one more etcd member goes down the cluster will be unavailable
           summary: etcd cluster insufficient members
-      ## alert InsufficientMembers end ...
+  ## alert InsufficientMembers end ...
 
-      - alert: NoLeader
+  - alert: NoLeader
         expr: etcd_server_has_leader{job="etcd"} == 0
         for: 1m
         labels:
@@ -19,9 +19,9 @@ groups:
         annotations:
           description: etcd member {{ $labels.instance }} has no leader
           summary: etcd member has no leader
-      ## alert NoLeader end ...
+  ## alert NoLeader end ...
 
-      - alert: HighNumberOfLeaderChanges
+  - alert: HighNumberOfLeaderChanges
         expr: increase(etcd_server_leader_changes_seen_total{job="etcd"}[1h]) > 3
         labels:
           severity: Warning
@@ -29,9 +29,9 @@ groups:
           description: etcd instance {{ $labels.instance }} has seen {{ $value }} leader
             changes within the last hour
           summary: a high number of leader changes within the etcd cluster are happening
-      ## alert HighNumberOfLeaderChanges end ...
+  ## alert HighNumberOfLeaderChanges end ...
 
-      - alert: HighNumberOfFailedHTTPRequests
+  - alert: HighNumberOfFailedHTTPRequests
         expr: sum(rate(etcd_http_failed_total{job="etcd"}[5m])) BY (method) / sum(rate(etcd_http_received_total{job="etcd"}[5m])) BY (method) > 0.05
         for: 5m
         labels:
@@ -39,9 +39,9 @@ groups:
         annotations:
           description: '{{ $value }}% of requests for {{ $labels.method }} failed on etcd instance {{ $labels.instance }}'
           summary: a high number of HTTP requests are failing
-      ## alert HighNumberOfFailedHTTPRequests end ...
+  ## alert HighNumberOfFailedHTTPRequests end ...
 
-      - alert: HTTPRequestsSlow
+  - alert: HTTPRequestsSlow
         expr: histogram_quantile(0.99, rate(etcd_http_successful_duration_seconds_bucket[5m])) > 0.15
         for: 3m
         labels:
@@ -50,9 +50,9 @@ groups:
           description: on etcd instance {{ $labels.instance }} HTTP requests to {{ $labels.method
             }} are slow
           summary: slow HTTP requests
-      ## alert HTTPRequestsSlow end ...
+  ## alert HTTPRequestsSlow end ...
 
-      - alert: EtcdMemberCommunicationSlow
+  - alert: EtcdMemberCommunicationSlow
         expr: histogram_quantile(0.99, rate(etcd_network_peer_round_trip_time_seconds_bucket[5m])) > 0.15
         for: 3m
         labels:
@@ -60,18 +60,18 @@ groups:
         annotations:
           description: etcd instance {{ $labels.instance }} member communication with {{ $labels.To }} is slow
           summary: etcd member communication is slow
-      ## alert EtcdMemberCommunicationSlow end ...
+  ## alert EtcdMemberCommunicationSlow end ...
 
-      - alert: HighNumberOfFailedProposals
+  - alert: HighNumberOfFailedProposals
         expr: increase(etcd_server_proposals_failed_total{job="etcd"}[1h]) > 5
         labels:
           severity: Warning
         annotations:
           description: etcd instance {{ $labels.instance }} has seen {{ $value }} proposal failures within the last hour
           summary: a high number of proposals within the etcd cluster are failing
-      ## alert HighNumberOfFailedProposals end ...
+  ## alert HighNumberOfFailedProposals end ...
 
-      - alert: HighFsyncDurations
+  - alert: HighFsyncDurations
         expr: histogram_quantile(0.99, rate(etcd_disk_wal_fsync_duration_seconds_bucket[5m])) > 0.5
         for: 3m
         labels:
@@ -79,9 +79,9 @@ groups:
         annotations:
           description: etcd instance {{ $labels.instance }} fync durations are high
           summary: high fsync durations
-      ## alert HighFsyncDurations end ...
+  ## alert HighFsyncDurations end ...
 
-      - alert: HighCommitDurations
+  - alert: HighCommitDurations
         expr: histogram_quantile(0.99, rate(etcd_disk_backend_commit_duration_seconds_bucket[5m])) > 0.25
         for: 3m
         labels:
@@ -89,5 +89,5 @@ groups:
         annotations:
           description: etcd instance {{ $labels.instance }} commit durations are high
           summary: high commit durations
-      ## alert HighCommitDurations end ...
-  ## etcd3.rules end ...
+  ## alert HighCommitDurations end ...
+## etcd3.rules end ...

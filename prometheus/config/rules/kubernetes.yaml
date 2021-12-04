@@ -1,5 +1,5 @@
 groups:
-  - name: kubernetes-absent.rules
+- name: kubernetes-absent.rules
     rules:
       - alert: AlertmanagerDown
         annotations:
@@ -57,9 +57,8 @@ groups:
         for: 3m
         labels:
           severity: High
-  ## kubernetes-absent.rules end ...
-
-  - name: kubernetes-system.rules
+## kubernetes-absent.rules end ...
+- name: kubernetes-system.rules
     rules:
     - alert: KubeClientRestErrors
       annotations:
@@ -88,9 +87,8 @@ groups:
         histogram_quantile(0.01, sum by (job, le) (rate(apiserver_client_certificate_expiration_seconds_bucket{job="kubernetes-apiservers"}[5m]))) < 604800
       labels:
         severity: Warning
-  ## kubernetes-system.rules end ...
-
-  - name: kubernetes-resources.rules
+## kubernetes-system.rules end ...
+- name: kubernetes-resources.rules
     rules:
       - alert: KubeMemOvercommit
         annotations:
@@ -113,9 +111,8 @@ groups:
         for: 3m
         labels:
           severity: Warning
-  ## kubernetes-resources.rules end ...
-
-  - name: pod_usage.rules
+## kubernetes-resources.rules end ...
+- name: pod_usage.rules
     rules:
       - alert: Pod_all_memory_usage
         expr: (sum by (name)(container_memory_usage_bytes{image!="",name!="zealous_ride"}) / (1024^3) ) > 5
@@ -136,9 +133,8 @@ groups:
         annotations:
           description: 容器 {{ $labels.name }} network_receive 资源利用率大于 50M , (current value is {{ $value }})
           summary: Pod network_receive 负载告警
-  ## pod_usage.rules end ...
-
-  - name: job_status.rules
+## pod_usage.rules end ...
+- name: job_status.rules
     rules:
       - alert: job_status_failed
         expr: kube_job_status_failed > 0
@@ -148,9 +144,8 @@ groups:
         annotations:
           description: 'Job {{$labels.exported_job}} is in failed status'
           summary: '{{$labels.exported_job}} has failed status'
-  ## job_status.rules end ...
-
-  - name: pod_status.rules
+## job_status.rules end ...
+- name: pod_status.rules
     rules:
       - alert: pod_phase_status_error
         expr: kube_pod_status_phase{phase=~"Failed|Pending|Unknown"} == 1
@@ -176,9 +171,8 @@ groups:
         annotations:
           description: 'Pod {{$labels.pod}} in namespace {{$labels.namespace}} has a container terminated for more than 3 minutes'
           summary: 'Pod {{$labels.pod}} in namespace {{$labels.namespace}} in error status'
-  ## pod_status.rules end ...
-
-  - name: endpoints.rules
+## pod_status.rules end ...
+- name: endpoints.rules
     rules:
       - alert: KubernetesEndpointsDown
         expr: kube_endpoint_address_not_ready > 0
@@ -187,4 +181,4 @@ groups:
           severity: High
         annotations:
           description: 'Kubernetes service name: {{$labels.endpoint}}, namespaces: {{$labels.namespace}}, instance: {{$labels.instance}}, endpoints error!'
-  ## endpoints.rules end ...
+## endpoints.rules end ...

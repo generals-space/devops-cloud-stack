@@ -33,10 +33,6 @@ spec:
       labels:
         name: prometheus
     spec:
-      securityContext:
-        fsGroup: 472
-        runAsUser: 0
-      serviceAccountName: prometheus
       containers:
       - name: prometheus
         image: prom/prometheus:v2.20.1
@@ -57,16 +53,13 @@ spec:
         volumeMounts:
         - name: config
           mountPath: /etc/prometheus
-        - name: rules
-          mountPath: /etc/prometheus/rules
+        ## - name: rules
+        ##   mountPath: /etc/prometheus/rules
         - mountPath: /var/run/secrets/etcd-sercret
           name: etcd-secret
         - mountPath: /etc/localtime
           name: time
           readOnly: true
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 30
       volumes:
       - name: config
         configMap:
