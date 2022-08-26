@@ -1,0 +1,108 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: es-master-svc
+  labels:
+    app: es-master-svc
+spec:
+  ports:
+  ## 对客户端提供服务的端口
+  - port: 9200
+    name: client
+    targetPort: 9200
+  ## 集群内与其他节点交互的端口
+  - port: 9300
+    name: node
+    targetPort: 9300
+  selector:
+    ## 注意: service 的 selector 需要指定的是 
+    ## Deployment -> spec -> template -> labels,
+    ## 而不是 Deployment -> metadata -> lables.
+    ## 可以说, Service与Deployment最终指向的目标都是Pod资源.
+    app: es-master
+  ## 这里是headless service的核心
+  clusterIP: None
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  ## deploy 生成的 pod 的名称也是 es-xxx
+  name: es-master
+  labels:
+    app: es-master
+spec:
+  ## headless service名称
+  serviceName: es-master-svc
+  ## 这里的 replicas 是确定的, 配置文件里的
+  replicas: 3
+  selector:
+    matchLabels:
+      ## 这里的 label 是与下面的 template -> metadata -> label 匹配的,
+      ## 表示一种管理关系
+      app: es-master
+  template:
+    metadata:
+      labels:
+        app: es-master
+    spec:
+      initContainers:
+      ## elasticsearch 会对配置文件目录进行写入操作, 而通过 configmap 挂载的目录是只读的,
+      ## es 在写入时会导致异常退出, 这里用一个 initContainers 做一个拷贝工作.
+      - name: config
+        image: busybox
+        ## 注意: 这里用超级权限修改容器内部的 sysctl 内核参数, 会同时影响宿主机本身的参数.
+        command: 
+        - sysctl
+        - -w
+        - vm.max_map_count=655300
+        securityContext:
+          privileged: true
+      containers:
+      - name: es-master
+        image: elasticsearch:5.5.0
+        imagePullPolicy: IfNotPresent
+        env: 
+        ## CLUSTER_NAME 写 sts 的名称
+        - name: CLUSTER_NAME
+          value: es
+        - name: MASTER_NAME
+          value: es-master
+        ## MASTER_SVC_NAME 要求与 headless service 名称相同.
+        - name: MASTER_SVC_NAME
+          value: es-master-svc
+        ## 用 POD_NAME 作 es 节点的 node.name,
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        ## jvm 参数在一个独立的配置文件 jvm.options 中.
+        - name: ES_JAVA_OPTS
+          value: "-Xmx512m -Xms512m"
+        - name: IS_MASTER
+          value: "true"
+        - name: IS_DATA
+          value: "false"
+        ## 5.x默认未安装 xpack 插件, 无法设置密码
+        ##
+        ## es配置文件中的所有键应该都可以在 env 中直接设置, 比如
+        ## name: xpack.security.enabled
+        ## value: 'true'
+        ## 但是, username/password 这两个参数我找了很多地方, 没有找到在配置文件中的键名.
+        ## 所有文章都是通过环境变量来设置的.
+        ## 貌似这些环境变量(包括上面的 java opts), 都在 es 内部被通过 ${ES_XXX} 进行了替换,
+        ## 即, 这些环境的优先级很高.
+        ## - name: ELASTIC_USERNAME
+        ##   value: "elastic"
+        ## - name: ELASTIC_PASSWORD
+        ##   value: "123456"
+        volumeMounts:
+        - name: es-config-vol
+          mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          ## subPath 的意思是, 该 configmap 并不影响整个目录, 只影响 elasticsearch.yml 这一文件.
+          subPath: elasticsearch.yml
+      volumes:
+      - name: es-config-vol
+        configMap:
+          name: es-config

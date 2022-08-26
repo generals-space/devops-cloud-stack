@@ -7,4 +7,5 @@
         1. `elasticsearch.yml`用于配置 es 本身的行为
         2. `jvm.options`用于配置 es 的 jvm 参数
         3. `log4j2.properties`用于配置 es 的日志格式
-
+2. [Install Elasticsearch with Docker](https://www.elastic.co/guide/en/elasticsearch/reference/5.5/docker.html)
+    - 配置文件字段与环境变量间的转换规则
