@@ -1,0 +1,46 @@
+version: '3'
+services:
+  ## redis-cli -a 12345678 --cluster create --cluster-yes --cluster-replicas 1 \
+  ## $(dig +short +search mcp-middleware-mcp-redis-6):6379 \
+  ## $(dig +short +search mcp-middleware-mcp-redis-1):6379 \
+  ## $(dig +short +search mcp-middleware-mcp-redis-2):6379 \
+  ## $(dig +short +search mcp-middleware-mcp-redis-3):6379 \
+  ## $(dig +short +search mcp-middleware-mcp-redis-4):6379 \
+  ## $(dig +short +search mcp-middleware-mcp-redis-5):6379
+
+  mcp-redis:
+    image: registry.cn-hangzhou.aliyuncs.com/generals-space/redis:5.0.8.1
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 6
+    networks:
+    - mcp-bridge
+    ## 多副本时无法映射同样的端口
+    ## ports:
+    ## - 6379:6379
+    environment:
+    - TZ=Asia/Shanghai
+    - LANG=C.UTF-8
+    command:
+    - bash
+    - -c
+    - redis-server --requirepass 12345678 --cluster-enabled yes
+    ## redis 不需要挂载数据卷, 否则集群重启时可能会出问题.
+    ## volumes:
+    ## - /opt/data/redis:/data
+
+  mcp-lb-nginx:
+    image: nginx:1.12.0
+    volumes:
+    - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+    - mcp-redis
+    networks:
+    - mcp-bridge
+    ports:
+    - 6379:6379
+
+networks:
+  mcp-bridge:
+    driver: bridge
